@@ -58,6 +58,7 @@ private:
     int m_num_message_loops;
     int m_num_processing_loops;
     bool m_display_time_stats{ false };
+    uint32_t obis_code{ 0x00 };
 
     // Store the message as it is being received:
     constexpr static int message_buffer_size{ 2048 };
@@ -104,10 +105,6 @@ private:
             m_verifying_crc_time = current_time;
             break;
         case states::PROCESSING_ASCII:
-            m_processing_time = current_time;
-            m_CTS_switch->turn_off();
-            m_start_of_data = m_message_buffer;
-            break;
         case states::PROCESSING_BINARY:
             m_processing_time = current_time;
             m_CTS_switch->turn_off();
@@ -310,144 +307,88 @@ public:
             } while (millis() - loop_start_time < 25);
             break;
         case states::PROCESSING_BINARY: {
-            int current_data_pos = 3;
-            while (m_message_buffer[current_data_pos] != 0x13 && current_data_pos <= m_crc_position) ++current_data_pos;
-            if (current_data_pos > m_crc_position) {
-                ESP_LOGW("p1reader", "Could not find control byte. Resetting.");
-                ChangeState(states::ERROR_RECOVERY);
-                return;
+            ++m_num_processing_loops;
+            if (m_start_of_data == m_message_buffer) {
+                m_start_of_data += 3;
+                while (*m_start_of_data != 0x13 && m_start_of_data <= m_message_buffer + m_crc_position) ++m_start_of_data;
+                if (m_start_of_data > m_message_buffer + m_crc_position) {
+                    ESP_LOGW("p1reader", "Could not find control byte. Resetting.");
+                    ChangeState(states::ERROR_RECOVERY);
+                    return;
+                }
+                m_start_of_data += 6;
             }
-            current_data_pos += 6;
 
-            uint32_t obis_code = 0x00;
-            char value_buffer[101];
-            while (current_data_pos < m_crc_position) {
-                uint8_t type  = m_message_buffer[current_data_pos];
+            do {
+                uint8_t type  = *m_start_of_data;
                 switch (type) {
                 case 0x00:
-                    current_data_pos++;
+                    m_start_of_data++;
                     break;
                 case 0x01: // array
-                    current_data_pos += 2;
+                    m_start_of_data += 2;
                     break;
                 case 0x02: // struct
-                    current_data_pos += 2;
+                    m_start_of_data += 2;
                     break;
                 case 0x06: {// unsigned double long
-                    uint32_t v = (m_message_buffer[current_data_pos + 1] << 24 | m_message_buffer[current_data_pos + 2] << 16 | m_message_buffer[current_data_pos + 3] << 8 | m_message_buffer[current_data_pos + 4]);
+                    uint32_t v = (*(m_start_of_data + 1) << 24 | *(m_start_of_data + 2) << 16 | *(m_start_of_data + 3) << 8 | *(m_start_of_data + 4));
                     float fv = v * 1.0 / 1000;
                     Sensor *S{ GetSensor(obis_code) };
                     if (S != nullptr) S->publish_state(fv);
-                    current_data_pos += 1 + 4;
+                    m_start_of_data += 1 + 4;
                     break;
                 }
                 case 0x09: // octet
-                    if (m_message_buffer[current_data_pos + 1] == 0x06) {
+                    if (*(m_start_of_data + 1) == 0x06) {
                         int minor{ -1 }, major{ -1 }, micro{ -1 };
-                        major = m_message_buffer[current_data_pos + 4];
-                        minor = m_message_buffer[current_data_pos + 5];
-                        micro = m_message_buffer[current_data_pos + 6];
+                        major = *(m_start_of_data + 4);
+                        minor = *(m_start_of_data + 5);
+                        micro = *(m_start_of_data + 6);
 
                         obis_code = OBIS(major, minor, micro);
                     }
-                    current_data_pos += 2 + (int) m_message_buffer[current_data_pos + 1];
+                    m_start_of_data += 2 + (int) *(m_start_of_data + 1);
                     break;
                 case 0x0a: // string
-                    current_data_pos += 2 + (int) m_message_buffer[current_data_pos + 1];
+                    m_start_of_data += 2 + (int) *(m_start_of_data + 1);
                     break;
                 case 0x0c: // datetime
-                    current_data_pos += 13;
+                    m_start_of_data += 13;
                     break;
                 case 0x0f: // scalar
-                    current_data_pos += 2;
+                    m_start_of_data += 2;
                     break;
                 case 0x10: {// unsigned long
-                    uint16_t v = (m_message_buffer[current_data_pos + 1] << 8 | m_message_buffer[current_data_pos + 2]);
+                    uint16_t v = (*(m_start_of_data + 1) << 8 | *(m_start_of_data + 2));
                     float fv = v * 1.0 / 10;
                     Sensor *S{ GetSensor(obis_code) };
                     if (S != nullptr) S->publish_state(fv);
-                    current_data_pos += 3;
+                    m_start_of_data += 3;
                     break;
                 }
                 case 0x12: {// signed long
-                    uint16_t v = (m_message_buffer[current_data_pos + 1] << 8 | m_message_buffer[current_data_pos + 2]);
+                    uint16_t v = (*(m_start_of_data + 1) << 8 | *(m_start_of_data + 2));
                     float fv = v * 1.0 / 10;
                     Sensor *S{ GetSensor(obis_code) };
                     if (S != nullptr) S->publish_state(fv);
-                    current_data_pos += 3;
+                    m_start_of_data += 3;
                     break;
                 }
                 case 0x16: // enum
-                    current_data_pos += 2;
+                    m_start_of_data += 2;
                     break;
                 default:
                     ESP_LOGW("p1reader", "Unsupported data type 0x%02x. Resetting.", type);
                     ChangeState(states::ERROR_RECOVERY);
                     return;
                 }
-            }
-
-            //uint8_t nbr_of_data_points = m_message_buffer[19];
-            //int current_data_point_pos = 19 + 1;
-
-            //ESP_LOGD("p1reader", "Found %d data points to process.", nbr_of_data_points);
-
-            //while (nbr_of_data_points-- > 0) {
-                //if (m_message_buffer[current_data_point_pos] = 0x02) {
-                //    ESP_LOGW("p1reader", "Expected data point not found. Resetting.");
-                //    ChangeState(states::ERROR_RECOVERY);
-                //    return;
-                //}
-                //uint8_t data_class = m_message_buffer[current_data_point_pos + 1];
-
-                //int current_value_pos = current_data_point_pos + 2;
-                //while (m_message_buffer[current_value_pos] != 0x02) {
-                    
-                //}
-
-                //char obisCode[12];
-                //uint32_t const obisCode{ OBIS(m_message_buffer[current_data_point_pos + 6], m_message_buffer[current_data_point_pos + 7], m_message_buffer[m_message_buffer_position + 8]) };
-                //sprintf(obisCode, "%u.%u.%u", m_message_buffer[current_data_point_pos + 6], m_message_buffer[current_data_point_pos + 7], m_message_buffer[m_message_buffer_position + 8]);
-//ESP_LOGD("obis", "OBIS %s", obisCode);
-
-                // char value[16];
-                // uint8_t value_format = m_message_buffer[current_data_point_pos + 10];
-                // if (value_format == 0x09) {
-                //   uint8_t value_length = m_message_buffer[current_data_point_pos + 11];
-                //   if (value_length > 0) {
-                //     // No value read but still parseRow may be called below
-                //   }
-                // } else if (value_format == 0x06) {
-                //   uint32_t v = (m_message_buffer[current_data_point_pos + 11] << 24 | m_message_buffer[current_data_point_pos + 12] << 16 | m_message_buffer[m_message_buffer_position + 13] << 8 | m_message_buffer[m_message_buffer_position + 14]);
-                //   float fv = v * 1.0 / 1000;
-                //   sprintf(value, "%.3f", fv);
-                // } else if (value_format == 0x10) {
-                //   int16_t v = (m_message_buffer[current_data_point_pos + 11] << 8 | m_message_buffer[current_data_point_pos + 12]);
-                //   float fv = v * 1.0 / 10;
-                //   sprintf(value, "%.1f", fv);
-                // } else if (value_format == 0x12) {
-                //   uint16_t v = (m_message_buffer[current_data_point_pos + 11] << 8 | m_message_buffer[current_data_point_pos + 12]);
-                //   float fv = v * 1.0 / 10;
-                //   sprintf(value, "%.1f", fv);
-                // } else {
-                //   ESP_LOGW("p1reader", "unknown value format %d", value_format);
-                // }
-
-                //if (data_class == 0x03) {
-                //    ESP_LOGD("p1reader", "read a data point");
-                //   //ESP_LOGD("obis", "OBIS %s = %s", obisCode, value);
-                //   //parseRow(parsed, obisCode, value);
-                //   uint32_t const obisCode{ OBIS(major, minor, micro) };
-                //   Sensor *S{ GetSensor(obisCode) };
-                //   if (S != nullptr) S->publish_state(value);
-                //   else {
-                //     ESP_LOGD("p1reader", "No sensor matching: %d.%d.%d (0x%x)", major, minor, micro, obisCode);
-                //   }
-                //}
-
-            //}
-            ChangeState(states::RESENDING);
-            return;
+                if (m_start_of_data >= m_message_buffer + m_crc_position) {
+                    ChangeState(states::RESENDING);
+                    return;
+                }
+            } while (millis() - loop_start_time < 25);
+            break;
         }
         case states::RESENDING:
             if (m_bytes_resent < m_message_buffer_position) {
