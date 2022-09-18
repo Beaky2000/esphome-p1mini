@@ -368,7 +368,7 @@ public:
                     break;
                 }
                 case 0x12: {// signed long
-                    uint16_t v = (*(m_start_of_data + 1) << 8 | *(m_start_of_data + 2));
+                    int16_t v = (*(m_start_of_data + 1) << 8 | *(m_start_of_data + 2));
                     float fv = v * 1.0 / 10;
                     Sensor *S{ GetSensor(obis_code) };
                     if (S != nullptr) S->publish_state(fv);
