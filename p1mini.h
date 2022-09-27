@@ -103,11 +103,11 @@ private:
             break;
         case states::VERIFYING_CRC:
             m_verifying_crc_time = current_time;
+            m_CTS_switch->turn_off();
             break;
         case states::PROCESSING_ASCII:
         case states::PROCESSING_BINARY:
             m_processing_time = current_time;
-            m_CTS_switch->turn_off();
             m_start_of_data = m_message_buffer;
             break;
         case states::RESENDING:
@@ -234,7 +234,7 @@ public:
 
             if (m_data_format == data_formats::ASCII) {
                 crc_from_msg = (int) strtol(m_message_buffer + m_crc_position, NULL, 16);
-                crc = crc16_ccitt_false(m_message_buffer, m_crc_position - 1);
+                crc = crc16_ccitt_false(m_message_buffer, m_crc_position);
             } else if (m_data_format == data_formats::BINARY) {
                 crc_from_msg = (m_message_buffer[m_crc_position + 1] << 8) + m_message_buffer[m_crc_position];
                 crc = crc16_x25(&m_message_buffer[1], m_crc_position - 1);
@@ -279,7 +279,7 @@ public:
             do {
                 while (*m_start_of_data == '\n' || *m_start_of_data == '\r') ++m_start_of_data;
                 char *end_of_line{ m_start_of_data };
-                while (*end_of_line != '\n' && *end_of_line != '\r' && *end_of_line != '\0') ++end_of_line;
+                while (*end_of_line != '\n' && *end_of_line != '\r' && *end_of_line != '\0' && *end_of_line != '!') ++end_of_line;
                 char const end_of_line_char{ *end_of_line };
                 *end_of_line = '\0';
 
@@ -299,7 +299,7 @@ public:
                     }
                 }
                 *end_of_line = end_of_line_char;
-                if (end_of_line_char == '\0') {
+                if (end_of_line_char == '\0' || end_of_line_char == '!') {
                     ChangeState(states::RESENDING);
                     return;
                 }
@@ -429,11 +429,11 @@ public:
 private:
     uint16_t crc16_ccitt_false(char* pData, int length) {
         int i;
-        uint16_t wCrc = 0xffff;
+        uint16_t wCrc = 0;
         while (length--) {
-            wCrc ^= *(unsigned char *)pData++ << 8;
+            wCrc ^= *(unsigned char *)pData++;
             for (i=0; i < 8; i++)
-                wCrc = wCrc & 0x8000 ? (wCrc << 1) ^ 0x1021 : wCrc << 1;
+                wCrc = wCrc & 0x0001 ? (wCrc >> 1) ^ 0xA001 : wCrc >> 1;
         }
         return wCrc;
     }
