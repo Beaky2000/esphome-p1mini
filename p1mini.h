@@ -74,7 +74,7 @@ private:
     uint32_t obis_code{ 0x00 };
 
     // Store the message as it is being received:
-    constexpr static int message_buffer_size{ 2048 };
+    constexpr static int message_buffer_size{ 4096 };
     char m_message_buffer[message_buffer_size];
     int m_message_buffer_position{ 0 };
     int m_crc_position{ 0 };
