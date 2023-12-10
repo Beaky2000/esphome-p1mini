@@ -3,6 +3,11 @@ substitutions:
   device_password: !secret p1mini_password
   device_api_key: !secret p1mini_api_key
 
+external_components:
+  # equivalent shorthand for GitHub
+  - source: github://Beaky2000/esphome-p1mini@main
+    components: [ p1mini ]
+
 esphome:
   name: ${device_name}
   includes:
