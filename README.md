@@ -11,7 +11,7 @@ Notable differences from esphome-p1reader are:
 > [!WARNING]
 > Custom components, such as this one, are deprecated by ESPHome according to [this page](https://esphome.io/components/sensor/custom) and are expected to stop working in future releases of ESPHome. The current version is tested with ESPHome version `2023.12.5`.
 
-There is a rewrite to [external component](https://esphome.io/components/external_components) in the `external-component` branch. Feel fre to test it out and report any issues!
+The main branch contains a rewrite to [external component](https://esphome.io/components/external_components). Use this branch only if you are unable to use the updated code for any reason.
 
 ## Verified meter hardware / supplier
 * [Sagemcom T211](https://www.ellevio.se/globalassets/content/el/elmatare-produktblad-b2c/ellevio_produktblad_fas3_t211_web2.pdf) / Ellevio, Skånska Energi
