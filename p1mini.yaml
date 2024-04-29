@@ -1,5 +1,5 @@
 substitutions:
-  device_name: p1mini
+  device_name: !secret p1mini_name
   device_password: !secret p1mini_password
   device_api_key: !secret p1mini_api_key
 

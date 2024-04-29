@@ -99,9 +99,13 @@ wifi_ssid: <your wifi SSID>
 wifi_password: <your wifi password>
 p1mini_password: <Your p1mini password (for OTA, etc)>
 p1mini_api_key: <Home Assistant API key>
+p1mini_name: <The name you want to use>
+
 ```
 The `p1mini_password` field can be set to any password before doing the initial upload of the firmware. A new API key can be generated on [this page](https://esphome.io/components/api.html).
 
+The `p1mini_name` field can be set to any name, it will be used when accessing the web server, for example p1mini will result in http://p1mini.local/
+ 
 The file structure should include these files:
 
 ```
