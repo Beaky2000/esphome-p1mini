@@ -32,6 +32,7 @@ api:
     key: "${device_api_key}"
 
 ota:
+  platform: esphome
   password: "${device_password}"
 
 web_server:
