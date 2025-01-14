@@ -41,6 +41,12 @@ If you have pre built hardware which does not connect the RTS signal to a GPIO, 
 
 ### Wiring D1 mini
 Wiring is simple. Five of the pins from the connector (one pin is not used)...
+1: 5V -> 5v
+2: RTS -> D2 data pin
+3: Data ground -> GND
+4: N/c (not connected)
+5: RX -> RX
+6: GND -> GND
 
 ![RJ12 pins](images/RJ12-pins.png)
 
