@@ -1,0 +1,5 @@
+https://github.com/latonita/esphome-dlms-cosem
+https://github.com/Beaky2000/esphome-p1mini/blob/main/p1mini.yaml
+https://community.home-assistant.io/t/using-slimmelezer-to-read-data-from-energy-meter-iskra-am550-from-romande-energie-switzerland/464691/26
+https://github.com/UtilitechAS/amsreader-firmware
+https://www.gurux.fi/GuruxDLMSTranslator
