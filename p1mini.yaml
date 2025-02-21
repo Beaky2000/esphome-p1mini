@@ -160,6 +160,8 @@ sensor:
     icon: "mdi:transmission-tower-export"
     unit_of_measurement: kW
     accuracy_decimals: 3
+    device_class: "power"
+    state_class: "measurement"
   - platform: p1_mini
     p1_mini_id: p1_mini_1
     obis_code: "2.7.0"
@@ -167,6 +169,8 @@ sensor:
     icon: "mdi:transmission-tower-import"
     unit_of_measurement: kW
     accuracy_decimals: 3
+    device_class: "power"
+    state_class: "measurement"
   - platform: p1_mini
     p1_mini_id: p1_mini_1
     obis_code: "3.7.0"
@@ -188,6 +192,8 @@ sensor:
     icon: "mdi:transmission-tower-export"
     unit_of_measurement: kW
     accuracy_decimals: 3
+    device_class: "power"
+    state_class: "measurement"
   - platform: p1_mini
     p1_mini_id: p1_mini_1
     obis_code: "22.7.0"
@@ -195,6 +201,8 @@ sensor:
     icon: "mdi:transmission-tower-import"
     unit_of_measurement: kW
     accuracy_decimals: 3
+    device_class: "power"
+    state_class: "measurement"
   - platform: p1_mini
     p1_mini_id: p1_mini_1
     obis_code: "41.7.0"
@@ -202,6 +210,8 @@ sensor:
     icon: "mdi:transmission-tower-export"
     unit_of_measurement: kW
     accuracy_decimals: 3
+    device_class: "power"
+    state_class: "measurement"
   - platform: p1_mini
     p1_mini_id: p1_mini_1
     obis_code: "42.7.0"
@@ -209,6 +219,8 @@ sensor:
     icon: "mdi:transmission-tower-import"
     unit_of_measurement: kW
     accuracy_decimals: 3
+    device_class: "power"
+    state_class: "measurement"
   - platform: p1_mini
     p1_mini_id: p1_mini_1
     obis_code: "61.7.0"
@@ -216,6 +228,8 @@ sensor:
     icon: "mdi:transmission-tower-export"
     unit_of_measurement: kW
     accuracy_decimals: 3
+    device_class: "power"
+    state_class: "measurement"
   - platform: p1_mini
     p1_mini_id: p1_mini_1
     obis_code: "62.7.0"
@@ -223,6 +237,8 @@ sensor:
     icon: "mdi:transmission-tower-import"
     unit_of_measurement: kW
     accuracy_decimals: 3
+    device_class: "power"
+    state_class: "measurement"
   - platform: p1_mini
     p1_mini_id: p1_mini_1
     obis_code: "23.7.0"
@@ -272,6 +288,8 @@ sensor:
     icon: "mdi:lightning-bolt-outline"
     unit_of_measurement: V
     accuracy_decimals: 1
+    device_class: "voltage"
+    state_class: "measurement"
   - platform: p1_mini
     p1_mini_id: p1_mini_1
     obis_code: "52.7.0"
@@ -279,6 +297,8 @@ sensor:
     icon: "mdi:lightning-bolt-outline"
     unit_of_measurement: V
     accuracy_decimals: 1
+    device_class: "voltage"
+    state_class: "measurement"
   - platform: p1_mini
     p1_mini_id: p1_mini_1
     obis_code: "72.7.0"
@@ -286,6 +306,8 @@ sensor:
     icon: "mdi:lightning-bolt-outline"
     unit_of_measurement: V
     accuracy_decimals: 1
+    device_class: "voltage"
+    state_class: "measurement"
   - platform: p1_mini
     p1_mini_id: p1_mini_1
     obis_code: "31.7.0"
@@ -293,6 +315,8 @@ sensor:
     icon: "mdi:lightning-bolt"
     unit_of_measurement: A
     accuracy_decimals: 1
+    device_class: "current"
+    state_class: "measurement"
   - platform: p1_mini
     p1_mini_id: p1_mini_1
     obis_code: "51.7.0"
@@ -300,6 +324,8 @@ sensor:
     icon: "mdi:lightning-bolt"
     unit_of_measurement: A
     accuracy_decimals: 1
+    device_class: "current"
+    state_class: "measurement"
   - platform: p1_mini
     p1_mini_id: p1_mini_1
     obis_code: "71.7.0"
@@ -307,6 +333,8 @@ sensor:
     icon: "mdi:lightning-bolt"
     unit_of_measurement: A
     accuracy_decimals: 1
+    device_class: "current"
+    state_class: "measurement"
 #  - platform: p1_mini
 #    p1_mini_id: p1_mini_2
 #    obis_code: "1.8.0"
