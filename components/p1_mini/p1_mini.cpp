@@ -269,9 +269,32 @@ namespace esphome {
                     if (end_of_line != m_start_of_data) {
 
                         int group{ -1 }, channel{ -1 }, minor{ -1 }, major{ -1 }, micro{ -1 };
-                        double value{ -1.0 };
-
-                        if (sscanf(m_start_of_data, "%d-%d:%d.%d.%d(%lf", &group, &channel, &major, &minor, &micro, &value) != 6) {
+                        double value{ -1.0 }, second_value{ -1.0 };
+                        char first_value[32], second_value_str[32];
+                        
+                        if (sscanf(m_start_of_data, "%d-%d:%d.%d.%d(%31[^)]%*[^\n]%31[^)])", &group, &channel, &major, &minor, &micro, first_value, second_value_str) >= 6) {
+                            // Convertir les chaînes en double
+                            value = atof(first_value);
+                            if (second_value_str[0] != '\0') {
+                                second_value = atof(second_value_str);
+                            }
+                        
+                            if ((group == 0 && channel == 0) || (group == 1 && channel == 0) || (group == 0 && channel == 1)) {
+                                uint32_t const obisCode{ OBIS(major, minor, micro) };
+                                auto iter{ m_sensors.find(obisCode) };
+                                if (iter != m_sensors.end()) {
+                                    if (micro == 2 && second_value != -1.0) {
+                                        iter->second->publish_val(second_value);
+                                        ESP_LOGD(TAG, "Second value published for OBIS code ending in .2: %f", second_value);
+                                    } else {
+                                        iter->second->publish_val(value);
+                                        ESP_LOGD(TAG, "First value published: %f", value);
+                                    }
+                                } else {
+                                    ESP_LOGD(TAG, "No sensor matching: %d.%d.%d (0x%x)", major, minor, micro, obisCode);
+                                }
+                            }
+                        } else {
                             bool matched_text_sensor{ false };
                             for (IP1MiniTextSensor *text_sensor : m_text_sensors) {
                                 if (strncmp(m_start_of_data, text_sensor->Identifier().c_str(), text_sensor->Identifier().size()) == 0) {
@@ -281,13 +304,6 @@ namespace esphome {
                                 }
                             }
                             if (!matched_text_sensor) ESP_LOGD(TAG, "No sensor matched line '%s'", m_start_of_data);
-                        } else if ((group == 0 && channel == 0) || (group == 1 && channel == 0) || (group == 0 && channel == 1)) {
-                            uint32_t const obisCode{ OBIS(major, minor, micro) };
-                            auto iter{ m_sensors.find(obisCode) };
-                            if (iter != m_sensors.end()) iter->second->publish_val(value);
-                            else {
-                                ESP_LOGD(TAG, "No sensor matching: %d.%d.%d (0x%x) data : '%s'", major, minor, micro, obisCode,m_start_of_data);
-                            }
                         }
                     }
                     *end_of_line = end_of_line_char;
