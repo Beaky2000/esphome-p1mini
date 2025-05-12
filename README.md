@@ -11,7 +11,7 @@ Notable differences from esphome-p1reader are:
 * Code rewritten to not spend excessive amounts of time in calls to the `loop` function. This should ensure stable operation of ESPHome and might help prevent some serial communication issues.
 
 ## ESPHome version
-The current version is tested with ESPHome version `2025.4.1` and the yaml *will not work with versions earlier than `2024.6.0`*.
+The current version is tested with ESPHome version `2025.4.2` and the yaml *will not work with versions earlier than `2024.6.0`*.
 
 ## Verified meter hardware / supplier
 * [Sagemcom T211](https://www.ellevio.se/globalassets/content/el/elmatare-produktblad-b2c/ellevio_produktblad_fas3_t211_web2.pdf) / Ellevio, Skånska Energi
