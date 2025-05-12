@@ -24,6 +24,8 @@ esphome:
 
 esp32:
   board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
 
 wifi:
   ssid: !secret wifi_ssid
@@ -60,9 +62,9 @@ external_components:
   - source: components
 
 light:
-  - platform: neopixelbus
-    type: RGB              # Some clone boards have color in a different order, such as GRB!
-    variant: WS2812
+  - platform: esp32_rmt_led_strip
+    rgb_order: RGB              # Some clone boards have color in a different order, such as GRB!
+    chipset: ws2812
     pin: GPIO10
     num_leds: 1
     id: status_light
