@@ -66,6 +66,8 @@ light:
     rgb_order: RGB              # Some clone boards have color in a different order, such as GRB!
     chipset: ws2812
     pin: GPIO10
+    gamma_correct: 1.0
+    color_correct: [ 100%, 60%, 50% ]
     num_leds: 1
     id: status_light
 
