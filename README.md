@@ -67,7 +67,7 @@ The file structure should include these files:
 |- p1mini.yaml          (or p1mini32.yaml)
 |- secrets.yaml
 |- components
-   |- p1mini
+   |- p1_mini
       |- __init__.py
       |- p1_mini.cpp
       |- p1_mini.h
