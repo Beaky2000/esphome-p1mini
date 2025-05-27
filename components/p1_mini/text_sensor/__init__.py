@@ -10,7 +10,7 @@ AUTO_LOAD = ["p1_mini"]
 P1MiniTextSensor = p1_mini_ns.class_(
     "P1MiniTextSensor", text_sensor.TextSensor, cg.Component)
 
-CONFIG_SCHEMA = text_sensor.TEXT_SENSOR_SCHEMA.extend(
+CONFIG_SCHEMA = text_sensor.text_sensor_schema(P1MiniTextSensor).extend(
     {
         cv.GenerateID(): cv.declare_id(P1MiniTextSensor),
         cv.GenerateID(CONF_P1_MINI_ID): cv.use_id(P1Mini),
