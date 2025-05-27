@@ -10,7 +10,7 @@ AUTO_LOAD = ["p1_mini"]
 P1MiniSensor = p1_mini_ns.class_(
     "P1MiniSensor", sensor.Sensor, cg.Component)
 
-CONFIG_SCHEMA = sensor.sensor_schema().extend(
+CONFIG_SCHEMA = sensor.sensor_schema(P1MiniSensor).extend(
     {
         cv.GenerateID(): cv.declare_id(P1MiniSensor),
         cv.GenerateID(CONF_P1_MINI_ID): cv.use_id(P1Mini),
