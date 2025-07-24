@@ -8,10 +8,10 @@ The component can be used [by itself from any config file](docs/component_only.m
 Notable differences from esphome-p1reader are:
 * More frequent update of sensors with configurable update period.
 * No additional components needed. RJ12 cable connects directly to ESP module. (A resistor may be needed in some cases)
-* Code rewritten to not spend excessive amounts of time in calls to the `loop` function. This should ensure stable operation of ESPHome and might help prevent some serial communication issues.
+* More configurable sensor parameters and text sensors makes it easier to adapt this project to other markets than Sweden without having to change the C++ code.
 
 ## ESPHome version
-The current version is tested with ESPHome version `2025.5.0` and the yaml *will not work with versions earlier than `2024.6.0`*.
+The current version is tested with ESPHome version `2025.7.3` and the yaml *will not work with versions earlier than `2024.6.0`*.
 
 ## Verified meter hardware / supplier
 * [Sagemcom T211](https://www.ellevio.se/globalassets/content/el/elmatare-produktblad-b2c/ellevio_produktblad_fas3_t211_web2.pdf) / Ellevio, Skånska Energi
