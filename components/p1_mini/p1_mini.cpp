@@ -269,25 +269,29 @@ namespace esphome {
                     if (end_of_line != m_start_of_data) {
                         int minor{ -1 }, major{ -1 }, micro{ -1 };
                         double value{ -1.0 };
-                        if (sscanf(m_start_of_data, "1-0:%d.%d.%d(%lf", &major, &minor, &micro, &value) != 4) {
-                            bool matched_text_sensor{ false };
+                        bool matched_sensor{ false };
+                        bool is_regular_sensor{ sscanf(m_start_of_data, "1-0:%d.%d.%d(%lf", &major, &minor, &micro, &value) == 4 };
+                        if (is_regular_sensor) {
+                            auto iter{ m_sensors.find(OBIS(major, minor, micro)) };
+                            if (iter != m_sensors.end()) {
+                                matched_sensor = true;
+                                iter->second->publish_val(value);
+                            }
+                        }
+                        if (!matched_sensor) {
                             for (IP1MiniTextSensor *text_sensor : m_text_sensors) {
                                 if (strncmp(m_start_of_data, text_sensor->Identifier().c_str(), text_sensor->Identifier().size()) == 0) {
-                                    matched_text_sensor = true;
+                                    matched_sensor = true;
                                     text_sensor->publish_val(m_start_of_data);
                                     break;
                                 }
-                                
                             }
-                            if (!matched_text_sensor) ESP_LOGD(TAG, "No sensor matched line '%s'", m_start_of_data);
                         }
-                        else {
-                            uint32_t const obisCode{ OBIS(major, minor, micro) };
-                            auto iter{ m_sensors.find(obisCode) };
-                            if (iter != m_sensors.end()) iter->second->publish_val(value);
-                            else {
-                                ESP_LOGD(TAG, "No sensor matching: %d.%d.%d (0x%x)", major, minor, micro, obisCode);
-                            }
+                        if (!matched_sensor) {
+                            if (is_regular_sensor)
+                                ESP_LOGD(TAG, "No sensor matched line '%s' with obis code %d.%d.%d", m_start_of_data, major, minor, micro);
+                            else
+                                ESP_LOGD(TAG, "No sensor matched line '%s'", m_start_of_data);
                         }
                     }
                     *end_of_line = end_of_line_char;
