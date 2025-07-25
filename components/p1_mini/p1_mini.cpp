@@ -98,11 +98,10 @@ namespace esphome {
             //ESP_LOGI(TAG, "New text sensor: '%s'", identifier.c_str());
         }
 
-        P1Mini::P1Mini(uint32_t min_period_ms, int buffer_size, bool secondary_p1)
+        P1Mini::P1Mini(uint32_t min_period_ms, int buffer_size)
             : m_error_recovery_time{ millis() }
             , m_message_buffer_size{ buffer_size }
             , m_min_period_ms{ min_period_ms }
-            , m_secondary_p1{ secondary_p1 }
         {
             m_message_buffer = new char[m_message_buffer_size];
             if (m_message_buffer == nullptr) {
@@ -442,6 +441,7 @@ namespace esphome {
                 m_crc_position = m_message_buffer_position = 0;
                 m_num_message_loops = m_num_processing_loops = 0;
                 m_data_format = data_formats::UNKNOWN;
+                m_secondary_p1 = m_secondary_rts != nullptr && m_secondary_rts->state;
                 for (auto T : m_ready_to_receive_triggers) T->trigger();
                 break;
             case states::READING_MESSAGE:

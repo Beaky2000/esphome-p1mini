@@ -58,7 +58,7 @@ switch:
 
 binary_sensor:
   - platform: gpio
-    id: secondary_p1_rts # Currently not used, but make sure D0 is configured as input in case it is connected.
+    id: secondary_p1_rts
     pin:
       number: D0
       mode: INPUT_PULLDOWN
@@ -84,7 +84,7 @@ p1_mini:
     uart_id: my_uart_1
     minimum_period: 2s       # Should be 0 (zero) if the RTS signal is not used.
     buffer_size: 3072        # Needs to be large enough to hold one entire update from the meter.
-    secondary_p1: false
+    secondary_rts: secondary_p1_rts
     on_ready_to_receive:
       then:
         - switch.turn_on: p1_rts

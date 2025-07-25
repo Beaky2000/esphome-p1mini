@@ -40,7 +40,7 @@ captive_portal:
 
 # Enable logging
 logger:
-  level: INFO  # Set to DEBUG if you are having issues!
+  level: INFO   # Change INFO to DEBUG if you are having issues!
   #baud_rate: 0 # disable logging over uart (or not, the C3 has two uarts)
 
 api:
@@ -63,13 +63,15 @@ external_components:
 
 light:
   - platform: esp32_rmt_led_strip
-    rgb_order: RGB              # Some clone boards have color in a different order, such as GRB!
+    rgb_order: RGB              # Many clone boards have color in a GRB order.
     chipset: ws2812
     pin: GPIO10
     gamma_correct: 1.0
     color_correct: [ 100%, 60%, 50% ]
     num_leds: 1
     id: status_light
+    default_transition_length: 0s
+    #rmt_channel: 1
 
 script:
   - id: status_light_color
@@ -108,12 +110,23 @@ uart:
 #  - id: my_uart_2
 #    ...
 
+binary_sensor:
+  - platform: gpio
+    id: secondary_rts_gpio
+    pin:
+      number: GPIO4
+      mode: INPUT_PULLDOWN
+      inverted: false
+  - platform: template
+    id: secondary_rts_always
+    lambda: return true;
+
 p1_mini:
   - id: p1_mini_1
     uart_id: my_uart_1
     minimum_period: 2s       # Should be 0 (zero) if the RTS signal is not used.
     buffer_size: 3072        # Needs to be large enough to hold one entire update from the meter.
-    secondary_p1: false
+    secondary_rts: secondary_rts_gpio
     on_ready_to_receive:
       then:
         - switch.turn_on: p1_rts

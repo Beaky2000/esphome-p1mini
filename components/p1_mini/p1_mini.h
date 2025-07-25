@@ -2,6 +2,7 @@
 
 #include "esphome/core/component.h"
 #include "esphome/components/uart/uart.h"
+#include "esphome/components/binary_sensor/binary_sensor.h"
 #include "esphome/core/automation.h"
 
 #include <map>
@@ -50,7 +51,7 @@ namespace esphome {
 
         class P1Mini : public uart::UARTDevice, public Component {
         public:
-            P1Mini(uint32_t min_period_ms, int buffer_size, bool secondary_p1);
+            P1Mini(uint32_t min_period_ms, int buffer_size);
 
             void setup() override;
             void loop() override;
@@ -74,6 +75,8 @@ namespace esphome {
             void register_update_received_trigger(UpdateReceivedTrigger *trigger) { m_update_received_triggers.push_back(trigger); }
             void register_update_processed_trigger(UpdateProcessedTrigger *trigger) { m_update_processed_triggers.push_back(trigger); }
             void register_communication_error_trigger(CommunicationErrorTrigger *trigger) { m_communication_error_triggers.push_back(trigger); }
+
+            void set_secondary_rts(binary_sensor::BinarySensor *sensor) { m_secondary_rts = sensor; }
 
         private:
 
@@ -128,7 +131,8 @@ namespace esphome {
             enum data_formats m_data_format { data_formats::UNKNOWN };
 
             uint32_t const m_min_period_ms;
-            bool const m_secondary_p1;
+            bool m_secondary_p1{ false };
+            binary_sensor::BinarySensor *m_secondary_rts{ nullptr };
 
             std::map<uint32_t, IP1MiniSensor *> m_sensors;
             std::vector<IP1MiniTextSensor *> m_text_sensors; // Keep sorted so longer identifiers are first!

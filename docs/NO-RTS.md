@@ -24,7 +24,7 @@ Most meters accepth 3.3 V on the RTS signal, but the E360 may need the full 5 vo
 If you built your ESP based on the original esphome-p1reader or if you bought a Slimmeleser etc which does not connect the RTS to a GPIO, you need to set the minimum update period to zero.
 
 ## Disabling the RTS signal
-By changing this, the RTS signal (if connected) will be set constantly high, and the p1mini will work slightly differently internally.
+By changing this, the RTS signal (if connected) will be set constantly high.
 
 In the yaml file, never set p1_rts low. Simply find and remove this line (in two places):
 

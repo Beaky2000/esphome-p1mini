@@ -3,8 +3,6 @@
 # esphome-p1mini
 Based on esphome-p1reader, which is an ESPHome custom component for reading P1 data from electricity meters. Designed for Swedish meters that implements the specification defined in the [Swedish Energy Industry Recommendation For Customer Interfaces](https://www.energiforetagen.se/forlag/elnat/branschrekommendation-for-lokalt-kundgranssnitt-for-elmatare/) version 1.3 and above.
 
-The component can be used [by itself from any config file](docs/component_only.md) or with one of the config files included in the project, which matches the suggested hardware configurations and is kept up to date with any updates to the component.
-
 Notable differences from esphome-p1reader are:
 * More frequent update of sensors with configurable update period.
 * No additional components needed. RJ12 cable connects directly to ESP module. (A resistor may be needed in some cases)
@@ -49,7 +47,7 @@ Note that ESP32 based boards other than the ESP32-C3 draw more power, which may 
 The component can be used by itself from any config file, or with one of the included config files, which are kept up to date with any updates and matches one of the hardware configurations.
 
 ### Standalone
-If you are making substantial changes to the config it may make more sense to [use the component only](docs/component_only.md) in your config file. 
+The component can be used [by itself from any config file](docs/component_only.md) which may make sense if you are making substantial changes to the config file.
 
 ### With one of the included yaml files
 Clone the repository and create a companion `secrets.yaml` file with the following fields:
