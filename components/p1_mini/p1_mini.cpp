@@ -218,41 +218,17 @@ namespace esphome {
                     crc_from_msg = (m_message_buffer[m_crc_position + 1] << 8) + m_message_buffer[m_crc_position];
                     crc = crc16_x25(&m_message_buffer[1], m_crc_position - 1);
                 }
-
+                
                 if (crc == crc_from_msg) {
                     ESP_LOGD(TAG, "CRC verification OK");
-                    if (m_data_format == data_formats::ASCII) {
-                        ChangeState(states::PROCESSING_ASCII);
-                    }
-                    else if (m_data_format == data_formats::BINARY) {
-                        ChangeState(states::PROCESSING_BINARY);
-                    }
-                    else {
-                        ChangeState(states::ERROR_RECOVERY);
-                    }
+                    ChangeState(m_data_format == data_formats::BINARY ? states::PROCESSING_BINARY : states::PROCESSING_ASCII);
                     return;
                 }
 
                 // CRC verification failed
-                ESP_LOGW(TAG, "CRC mismatch, calculated %04X != %04X. Message ignored.", crc, crc_from_msg);
-                if (m_data_format == data_formats::ASCII) {
-                    ESP_LOGD(TAG, "Buffer:\n%s (%d)", m_message_buffer, m_message_buffer_position);
-                }
-                else if (m_data_format == data_formats::BINARY) {
-                    ESP_LOGD(TAG, "Buffer:");
-                    char hex_buffer[81];
-                    hex_buffer[80] = '\0';
-                    for (int i = 0; i * 40 < m_message_buffer_position; i++) {
-                        int j;
-                        for (j = 0; j + i * 40 < m_message_buffer_position && j < 40; j++) {
-                            sprintf(&hex_buffer[2 * j], "%02X", m_message_buffer[j + i * 40]);
-                        }
-                        if (j >= m_message_buffer_position) {
-                            hex_buffer[j] = '\0';
-                        }
-                        ESP_LOGD(TAG, "%s", hex_buffer);
-                    }
-                }
+                ESP_LOGE(TAG, "CRC mismatch, calculated %04X != %04X. Buffer discarded.", crc, crc_from_msg);
+                for (int i{ 0 }; i < m_message_buffer_position; ++i) AddByteToDiscardLog(m_message_buffer[i]);
+                FlushDiscardLog();
                 ChangeState(states::ERROR_RECOVERY);
                 return;
             }
