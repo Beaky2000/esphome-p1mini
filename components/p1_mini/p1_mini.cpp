@@ -80,9 +80,51 @@ namespace esphome {
             }
 
             constexpr static const char *TAG = "P1Mini";
+        }
 
+        namespace {
+            // ParseLine removes the need to use scanf for parsing the lines in the ASCII messages
 
-
+            inline constexpr bool is_digit(char c) { return c >= '0' && c <= '9'; }
+            
+            inline constexpr double fast_atof(char const *str) {
+                if (!is_digit(str[0]) || str[0] == '.' && !is_digit(str[1])) return std::numeric_limits<double>::quiet_NaN();
+                while (*str == '0') ++str;
+                char const *end_or_decimal = str;
+                while (is_digit(*end_or_decimal)) ++end_or_decimal;
+                char const *c{ end_or_decimal };
+                double D{ 0.0 };
+                double position_factor{ 1.0 };
+                while (str <= --c) {
+                    D += static_cast<double>(*c - '0') * position_factor;
+                    position_factor *= 10.0;
+                }
+                if (*end_or_decimal == '.') {
+                    ++end_or_decimal;
+                    position_factor = 0.1;
+                    while (is_digit(*end_or_decimal)) {
+                        D += static_cast<double>(*end_or_decimal - '0') * position_factor;
+                        position_factor *= 0.1;
+                        ++end_or_decimal;
+                    }
+                }
+                return D;
+            }
+            
+            inline bool ParseLine(char const *line, int &major, int &minor, int &micro, double &value)
+            {
+                if (*line++ != '1' || *line++ != '-' || *line++ != '0' || *line++ != ':') return false;
+                auto parse_number = [&line](int &number, char end_char) -> bool {
+                    number = 0;
+                    while (is_digit(*line)) number = number * 10 + (*line++ - '0');
+                    return *line++ == end_char;
+                    };
+                if (!parse_number(major, '.')) return false;
+                if (!parse_number(minor, '.')) return false;
+                if (!parse_number(micro, '(')) return false;
+                value = fast_atof(line);
+                return true;
+            }
         }
 
 
@@ -245,7 +287,7 @@ namespace esphome {
                         int minor{ -1 }, major{ -1 }, micro{ -1 };
                         double value{ -1.0 };
                         bool matched_sensor{ false };
-                        bool is_regular_sensor{ sscanf(m_start_of_data, "1-0:%d.%d.%d(%lf", &major, &minor, &micro, &value) == 4 };
+                        bool is_regular_sensor{ ParseLine(m_start_of_data, major, minor, micro, value) };
                         if (is_regular_sensor) {
                             auto iter{ m_sensors.find(OBIS(major, minor, micro)) };
                             if (iter != m_sensors.end()) {
