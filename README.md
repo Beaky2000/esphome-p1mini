@@ -9,7 +9,7 @@ Notable differences from esphome-p1reader are:
 * More configurable sensor parameters and text sensors makes it easier to adapt this project to other markets than Sweden without having to change the C++ code.
 
 ## ESPHome version
-The current version is tested with ESPHome version `2026.1.1`.
+The current version is tested with ESPHome version `2026.3.1`.
 
 ## Verified meter hardware / supplier
 * [Sagemcom T211](https://www.ellevio.se/globalassets/content/el/elmatare-produktblad-b2c/ellevio_produktblad_fas3_t211_web2.pdf) / Ellevio, Skånska Energi
