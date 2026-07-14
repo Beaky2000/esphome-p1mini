@@ -5,3 +5,6 @@ electricity_meter
 .vs
 __pycache__
 *.bak
+.vscode
+.DS_Store
+Thumbs.db
