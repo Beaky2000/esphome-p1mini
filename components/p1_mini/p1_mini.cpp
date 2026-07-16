@@ -141,7 +141,7 @@ namespace esphome {
                 if (!available()) {
                     constexpr unsigned long max_wait_time_ms{ 60000 };
                     if (max_wait_time_ms < loop_start_time - m_identifying_message_time) {
-                        ESP_LOGW(TAG, "No data received for %d seconds.", max_wait_time_ms / 1000);
+                        ESP_LOGW(TAG, "No data received for %lu seconds.", max_wait_time_ms / 1000);
                         ChangeState(states::ERROR_RECOVERY);
                     }
                     break;
@@ -167,6 +167,7 @@ namespace esphome {
                 // Not breaking here! The delay caused by exiting the loop function here can cause
                 // the UART buffer to overflow, so instead, go directly into the READING_MESSAGE
                 // part.
+                [[fallthrough]];
             case states::READING_MESSAGE:
                 ++m_num_message_loops;
                 while (available()) {
@@ -216,7 +217,7 @@ namespace esphome {
                 {
                     constexpr unsigned long max_message_time_ms{ 10000 };
                     if (max_message_time_ms < loop_start_time - m_reading_message_time && m_reading_message_time < loop_start_time) {
-                        ESP_LOGW(TAG, "Complete message not received within %d seconds. Resetting.", max_message_time_ms / 1000);
+                        ESP_LOGW(TAG, "Complete message not received within %lu seconds. Resetting.", max_message_time_ms / 1000);
                         ChangeState(states::ERROR_RECOVERY);
                     }
                 }
@@ -278,10 +279,12 @@ namespace esphome {
                             }
                         }
                         if (!matched_sensor) {
-                            if (is_regular_sensor)
+                            if (is_regular_sensor) { 
                                 ESP_LOGD(TAG, "No sensor matched line '%s' with obis code %d.%d.%d", m_start_of_data, major, minor, micro);
-                            else
-                                ESP_LOGD(TAG, "No sensor matched line '%s'", m_start_of_data);
+                            }
+                            else {
+                                ESP_LOGD(TAG, "No sensor matched line '%s'", m_start_of_data); 
+                            }
                         }
                     }
                     *end_of_line = end_of_line_char;
@@ -381,7 +384,7 @@ namespace esphome {
                     m_display_time_stats = false;
                     if (m_time_stats_as_info_next == ++m_time_stats_counter) {
                         m_time_stats_as_info_next <<= 1;
-                        ESP_LOGI(TAG, "Cycle times: Identifying = %d ms, Message = %d ms (%d loops), Processing = %d ms (%d loops), (Total = %d ms). %d bytes in buffer",
+                        ESP_LOGI(TAG, "Cycle times: Identifying = %lu ms, Message = %lu ms (%d loops), Processing = %lu ms (%d loops), (Total = %lu ms). %d bytes in buffer",
                             m_reading_message_time - m_identifying_message_time,
                             m_processing_time - m_reading_message_time,
                             m_num_message_loops,
@@ -391,8 +394,8 @@ namespace esphome {
                             m_message_buffer_position
                         );
                     }
-                    else
-                        ESP_LOGD(TAG, "Cycle times: Identifying = %d ms, Message = %d ms (%d loops), Processing = %d ms (%d loops), (Total = %d ms). %d bytes in buffer",
+                    else {
+                        ESP_LOGD(TAG, "Cycle times: Identifying = %lu ms, Message = %lu ms (%d loops), Processing = %lu ms (%d loops), (Total = %lu ms). %d bytes in buffer",
                             m_reading_message_time - m_identifying_message_time,
                             m_processing_time - m_reading_message_time,
                             m_num_message_loops,
@@ -400,7 +403,8 @@ namespace esphome {
                             m_num_processing_loops,
                             m_waiting_time - m_identifying_message_time,
                             m_message_buffer_position
-                    );
+                        );
+                    }
                 }
                 if (m_min_period_ms == 0 || m_min_period_ms < loop_start_time - m_identifying_message_time) {
                     ChangeState(states::IDENTIFYING_MESSAGE);
